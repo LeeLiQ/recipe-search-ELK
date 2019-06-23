@@ -26,5 +26,12 @@ namespace recipe_search_ELK.Controllers
             var result = await _searchService.Autocomplete(query);
             return Json(result);
         }
+
+        [HttpGet("morelikethis")]
+        public async Task<JsonResult> MoreLikeTHis([FromQuery]string id, int page = 1, int pageSize = 10)
+        {
+            var result = await _searchService.MoreLikeThis(id, page, pageSize);
+            return Json(result);
+        }
     }
 }

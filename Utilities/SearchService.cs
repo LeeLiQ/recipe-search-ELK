@@ -56,6 +56,8 @@ namespace recipe_search_ELK.Utilities
                                       .Field(r => r.Name))));
 
             var suggestions = ExtractAutocompleteSuggestions(response);
+
+            return suggestions;
         }
 
         private List<AutocompleteResult> ExtractAutocompleteSuggestions(ISearchResponse<Recipe> response)
@@ -89,6 +91,26 @@ namespace recipe_search_ELK.Utilities
                                 }))
                             .ToList();
             return results;
+        }
+
+        public async Task<SearchResult<Recipe>> MoreLikeThis(string id, int page, int pageSize)
+        {
+            var response = await _client.SearchAsync<Recipe>(s => s
+                .Query(q => q
+                    .MoreLikeThis(qd => qd
+                        .Like(l => l.Document(d => d.Id(id)))
+                        .Fields(fd => fd.Fields(r => r.Ingredients))))
+                        .From((page - 1) * pageSize)
+                        .Size(pageSize));
+
+            return new SearchResult<Recipe>
+            {
+                Total = response.Total,
+                ElapsedMilliseconds = response.Took,
+                Page = page,
+                PageSize = pageSize,
+                Results = response.Documents
+            };
         }
     }
 }
